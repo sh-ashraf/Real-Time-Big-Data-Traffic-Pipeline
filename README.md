@@ -31,9 +31,8 @@
   - [Gold Layer](#3-gold-layer--star-schema)
   - [BI Layer](#4-bi-layer)
 - [Getting Started](#-getting-started)
-- [Service Endpoints](#-service-endpoints)
 - [Key Concepts Demonstrated](#-key-concepts-demonstrated)
-- [Author](#-author)
+- [License](#-license)
 
 ---
 
@@ -93,7 +92,7 @@ Traffic Event Producer
 | Message Broker | Apache Kafka (KRaft mode) |
 | Stream Processing | PySpark Structured Streaming |
 | Storage Format | Delta Lake |
-| Metadata Catalog | Hive Metastore (PostgreSQL-backed) |
+| Metadata Catalog | Hive Metastore (PostgreSQL) |
 | SQL Access | Spark Thrift Server |
 | BI / Dashboarding | Power BI |
 | Orchestration | Docker Compose |
@@ -105,16 +104,21 @@ Traffic Event Producer
 
 ```
 .
-├── docker-compose.yml       # Full infrastructure (Kafka, Spark, Hive Metastore, Kafka UI)
-├── apps/
-│   ├── traffic_bronze.py    # Kafka → Bronze Delta table
-│   ├── traffic_silver.py    # Bronze → Silver (DQ, validation, dedup, features)
+├── docker-compose.yml       # Full infrastructure (Kafka, Spark, Hive, Kafka UI)
+├── apps/                    # Spark transformation jobs (Bronze, Silver, Gold)
+│   ├── traffic_bronze.py    # Kafka → Bronze Delta table (raw ingest)
+│   ├── traffic_silver.py    # Bronze → Silver (validation, dedup, feature engineering)
 │   └── traffic_gold.py      # Silver → Gold (star schema: fact + dimensions)
-├── warehouse/                # Delta Lake table storage (mounted volume)
+├── producer/
+│   └── traffic_dirty_producer.py  # Kafka producer with clean/dirty event generation
+├── warehouse/               # Delta Lake table storage (mounted volume)
+├── spark-ivy/               # Maven cache for Spark dependencies
 ├── hive-conf/
-│   └── hive-site.xml
-├── commands.txt              # Setup & execution commands
-└── SQL.txt                   # Hive DDL + BI views
+│   └── hive-site.xml        # Hive Metastore configuration
+├── commands.txt             # Quick reference: setup & execution commands
+├── SQL.txt                  # Hive DDL + BI view creation
+├── LICENSE                  # MIT License
+└── README.md                # This file
 ```
 
 ---
@@ -135,9 +139,6 @@ Traffic Event Producer
 - **Feature Engineering:** peak-hour flag, speed-band classification (Low/Medium/High)
 
 ### 3. Gold Layer — Star Schema
-
-<details>
-<summary><strong>View star schema tables</strong></summary>
 
 | Table | Description |
 |---|---|
@@ -254,19 +255,8 @@ Connect Power BI to the Thrift Server endpoint on port `10000` and build dashboa
 
 ---
 
-## 🌐 Service Endpoints
 
-| Service | URL |
-|---|---|
-| Spark Master UI | http://localhost:8080 |
-| Spark Worker UI | http://localhost:8081 |
-| Kafka UI | http://localhost:8090 |
-| Spark Thrift Server (SQL/Power BI) | localhost:10000 |
-| Hive Metastore | thrift://localhost:9083 |
-
----
-
-## 📊 Key Concepts Demonstrated
+## �📊 Key Concepts Demonstrated
 
 - ✅ Real-time stream ingestion with Apache Kafka
 - ✅ Structured Streaming with watermarking & stateful deduplication
@@ -276,3 +266,10 @@ Connect Power BI to the Thrift Server endpoint on port `10000` and build dashboa
 - ✅ ACID-compliant storage with Delta Lake
 - ✅ Metastore-backed SQL access for BI tools
 - ✅ Fully containerized, reproducible infrastructure
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
