@@ -1,0 +1,9 @@
+# Spark dependencies and cache
+spark-ivy/
+
+# Data, Delta tables, and checkpoints
+warehouse/
+
+# Python cache files
+__pycache__/
+*.pyc
